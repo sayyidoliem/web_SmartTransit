@@ -1,12 +1,16 @@
-type MetricCardProps = {
+export default function MetricCard({
+  title,
+  value,
+  hint,
+  tone = "default",
+  badge,
+}: {
   title: string;
   value: string | number;
   hint?: string;
   tone?: "default" | "success" | "warning" | "danger";
   badge?: string;
-};
-
-export default function MetricCard({ title, value, hint, tone = "default", badge }: MetricCardProps) {
+}) {
   return (
     <div className={`card metric-card tone-${tone}`}>
       <div className="metric-top">

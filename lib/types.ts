@@ -2,22 +2,21 @@ export type TrafficState = "lancar" | "sedang" | "padat" | "sangat-padat";
 export type CrowdingLabel = "Normal" | "Ramai" | "Padat" | "Overload";
 export type CrowdingFilter = "all" | "normal" | "ramai" | "padat" | "overload";
 export type PriorityFilter = "all" | "priority-only" | "non-priority";
-
 export type HourlyDensity = {
   hour: string;
   normalCount: number;
   elderlyCount: number;
 };
-
 export type DashboardFilters = {
+  corridorId: string;
+  date: string;
+  day: string;
+  hour: string;
   crowding: CrowdingFilter;
   priority: PriorityFilter;
-  hour: string;
-  day: string;
   crowdingLabel: string;
   priorityLabel: string;
 };
-
 export type StationMarker = {
   id: string;
   name: string;
@@ -27,7 +26,6 @@ export type StationMarker = {
   lat: number;
   lng: number;
 };
-
 export type VehicleMarker = {
   id: string;
   label: string;
@@ -39,20 +37,26 @@ export type VehicleMarker = {
   lng: number;
   heading: number;
 };
-
+export type CorridorUnit = {
+  id: string;
+  label: string;
+  crowding: CrowdingLabel;
+  priorityAssigned: boolean;
+  baseEtaMinutes: number;
+  propagatedDelayMinutes: number;
+  progressBoost: number;
+};
 export type RouteShape = {
   id: string;
   kind: "main" | "connector";
   points: Array<{ lat: number; lng: number }>;
 };
-
 export type PredictEtaResult = {
   trafficState: TrafficState;
   normalMinutes: number;
   adjustedMinutes: number;
   deltaMinutes: number;
 };
-
 export type TransferEvaluation = {
   transferBufferMinutes: number;
   feederEtaMinutes: number;
@@ -62,20 +66,30 @@ export type TransferEvaluation = {
   status: string;
   recommendation: string;
 };
-
 export type GpsSnapshot = {
   generatedAt: string;
   generatedAtLabel: string;
   vehicles: VehicleMarker[];
 };
-
+export type ArrivalEstimate = {
+  stationId: string;
+  stationName: string;
+  etaMinutes: number;
+  unitId?: string;
+  unitLabel?: string;
+};
 export type DashboardState = {
   generatedAt: string;
   generatedAtLabel: string;
   routeName: string;
   currentTimeLabel: string;
+  estimateMode: boolean;
+  estimateNote: string;
   filters: DashboardFilters;
   filterOptions: {
+    minDate: string;
+    maxDate: string;
+    corridors: Array<{ value: string; label: string }>;
     days: string[];
     hours: string[];
     crowding: Array<{ value: CrowdingFilter; label: string }>;
@@ -94,21 +108,16 @@ export type DashboardState = {
     crowdingLabel: CrowdingLabel;
     hourly: HourlyDensity[];
   };
-  dispatch: {
-    explanation: string;
-    priorityMessage: string;
-  };
+  dispatch: { explanation: string; priorityMessage: string };
   eta: {
     bus: PredictEtaResult;
     train: PredictEtaResult;
     transfer: TransferEvaluation;
   };
   stations: StationMarker[];
-  map: {
-    stations: StationMarker[];
-    routes: RouteShape[];
-  };
+  map: { stations: StationMarker[]; routes: RouteShape[] };
   gpsSnapshot: GpsSnapshot;
+  corridorUnits: CorridorUnit[];
   alerts: Array<{ title: string; description: string; levelColor: string }>;
   apiExamples: {
     densityCurrent: unknown;

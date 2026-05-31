@@ -4,12 +4,11 @@ import type { CrowdingFilter, PriorityFilter } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   const search = request.nextUrl.searchParams;
-  const snapshot = getRealtimeGpsSnapshot({
+  return NextResponse.json(getRealtimeGpsSnapshot({
+    date: search.get("date") ?? undefined,
     day: search.get("day") ?? undefined,
     hour: search.get("hour") ?? undefined,
     crowding: (search.get("crowding") as CrowdingFilter | null) ?? undefined,
     priority: (search.get("priority") as PriorityFilter | null) ?? undefined
-  });
-
-  return NextResponse.json(snapshot);
+  }));
 }

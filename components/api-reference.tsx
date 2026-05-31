@@ -1,13 +1,22 @@
 import type { DashboardState } from "@/lib/types";
 
-export default function ApiReference({ api }: { api: DashboardState["apiExamples"] }) {
+export default function ApiReference({
+  api,
+}: {
+  api: DashboardState["apiExamples"];
+}) {
   return (
     <div className="card api-card">
       <div className="panel-head" style={{ marginBottom: 0 }}>
         <div>
-          <p className="kicker"><span className="dot" /> Developer handoff</p>
+          <p className="kicker">
+            <span className="dot" /> Developer handoff
+          </p>
           <h2>API payload examples</h2>
-          <p className="panel-meta">Siap diganti ke backend Python, YOLO, GTFS, traffic API, dan GPS nyata.</p>
+          <p className="panel-meta">
+            Siap diganti ke backend Python, YOLO, GTFS, traffic API, dan GPS
+            nyata.
+          </p>
         </div>
         <span className="chip">Mock routes ready</span>
       </div>
