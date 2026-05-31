@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SmartTransit Jakarta Dashboard",
-  description: "AI-powered transit dashboard for feeder prediction and ETA monitoring"
+  title: "SmartTransit Jakarta Realtime Map Dashboard",
+  description: "Realtime GPS, real map, feeder prediction, and traffic-aware ETA dashboard"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

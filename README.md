@@ -1,20 +1,17 @@
-# SmartTransit Jakarta Dashboard
+# SmartTransit Jakarta Dashboard — Realtime GPS + Real Map
 
-Dashboard prototype berbasis **Next.js App Router** untuk:
+Versi ini menambahkan:
 
-- **A. Predict jumlah feeder/bus berdasarkan density hourly** dari object detection (normal + lansia)
-- **B. Predict ETA berdasarkan traffic**
-- Monitoring **intermodal transfer window**
-- Menampilkan UI yang mengikuti wireframe dashboard operasional
+- **Realtime GPS stream** berbasis Server-Sent Events (SSE)
+- **Real map** menggunakan **Leaflet + React Leaflet + OpenStreetMap tiles**
+- Dropdown filter operasional:
+  - crowding status
+  - priority
+  - waktu (jam)
+  - waktu (hari)
+- SSR-safe hydration pattern untuk render awal yang stabil
 
-## Tech Stack
-
-- Next.js 15 App Router
-- React 19
-- TypeScript
-- CSS custom tanpa library tambahan
-
-## Menjalankan Project
+## Jalankan
 
 ```bash
 npm install
@@ -27,54 +24,17 @@ Buka:
 http://localhost:3000
 ```
 
-## API Mock
+## Endpoint mock
 
-- `GET /api/dashboard`
-- `GET /api/density/current`
-- `GET /api/density/hourly`
-- `GET /api/eta?routeId=feeder-1a`
+- `GET /api/dashboard?day=Senin&hour=17:00&crowding=all&priority=all`
+- `GET /api/gps/current?day=Senin&hour=17:00&crowding=all&priority=all`
+- `GET /api/gps/stream?day=Senin&hour=17:00&crowding=all&priority=all`
+- `GET /api/density/current?day=Senin&hour=17:00`
+- `GET /api/density/hourly?day=Senin`
+- `GET /api/eta?routeId=feeder-1a&day=Senin&hour=17:00`
 - `POST /api/intermodal/evaluate`
 
-## Logika yang Dipakai
+## Catatan penting
 
-### A. Predict jumlah feeder/bus
-
-```ts
-weightedPassengers = normalCount + elderlyCount * elderlyWeight
-baseBus = ceil(weightedPassengers / averageCapacityPerBus)
-recommendedBus = baseBus + reserveBus
-```
-
-### B. Predict ETA berdasarkan traffic
-
-```ts
-normalMinutes = (distanceKm / baseSpeedKmh) * 60
-adjustedMinutes = normalMinutes * trafficMultiplier
-```
-
-## Integrasi Backend Nyata
-
-Kalau nanti kamu sudah punya backend Python/FastAPI atau service YOLO/ETA:
-
-1. Ganti source di `lib/mock-data.ts`
-2. Sambungkan route handler ke service nyata
-3. Tambahkan WebSocket / SSE untuk update real-time
-
-## Struktur Folder
-
-```bash
-smarttransit-dashboard/
-├─ app/
-│  ├─ api/
-│  │  ├─ dashboard/route.ts
-│  │  ├─ density/current/route.ts
-│  │  ├─ density/hourly/route.ts
-│  │  ├─ eta/route.ts
-│  │  └─ intermodal/evaluate/route.ts
-│  ├─ globals.css
-│  ├─ layout.tsx
-│  └─ page.tsx
-├─ components/
-├─ lib/
-└─ ...
-```
+- **Koordinat GPS dan stream pada project ini masih simulasi/mock** untuk demo end-to-end, bukan GPS armada produksi.
+- Map memakai OpenStreetMap tile layer. Untuk penggunaan produksi berskala tinggi, pastikan patuh pada tile usage policy OSM atau gunakan tile provider sendiri.

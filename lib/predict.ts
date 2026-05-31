@@ -1,6 +1,6 @@
-import type { HourlyDensity, TrafficState } from "./types";
+import type { CrowdingLabel, HourlyDensity, TrafficState } from "./types";
 
-export function getCrowdingLabel(totalLoadRatio: number) {
+export function getCrowdingLabel(totalLoadRatio: number): CrowdingLabel {
   if (totalLoadRatio >= 0.95) return "Overload";
   if (totalLoadRatio >= 0.8) return "Padat";
   if (totalLoadRatio >= 0.55) return "Ramai";
@@ -29,16 +29,13 @@ export function predictFeederCount(params: {
   const recommendedBus = baseBus + reserveBus;
 
   return {
-    selectedHour: row.hour,
-    normalCount: row.normalCount,
-    elderlyCount: row.elderlyCount,
+    row,
     weightedPassengers,
     recommendedBus,
     priorityBus: row.elderlyCount >= 8 ? 1 : 0,
-    explanation:
-      row.elderlyCount >= 8
-        ? "Sediakan 1 feeder prioritas karena lansia tinggi pada slot ini."
-        : "Feeder standar cukup, monitor standing elderly secara real-time."
+    explanation: row.elderlyCount >= 8
+      ? "Volume lansia tinggi, aktifkan 1 feeder prioritas dan pertahankan reserve bus."
+      : "Feeder standar cukup, monitor standing elderly dan occupancy live."
   };
 }
 
@@ -54,8 +51,8 @@ export function predictEtaByTraffic(params: {
     trafficState,
     trafficMultiplierMap = {
       lancar: 1,
-      sedang: 1.2,
-      padat: 1.5,
+      sedang: 1.18,
+      padat: 1.48,
       "sangat-padat": 1.9
     }
   } = params;
@@ -77,7 +74,6 @@ export function evaluateTransferWindow(params: {
   transferBufferMinutes?: number;
 }) {
   const { feederEtaMinutes, trainDepartureInMinutes, transferBufferMinutes = 10 } = params;
-
   const lastToleratedEta = trainDepartureInMinutes - transferBufferMinutes;
   const safe = feederEtaMinutes <= lastToleratedEta;
 
@@ -89,7 +85,7 @@ export function evaluateTransferWindow(params: {
     safe,
     status: safe ? "Koneksi aman" : "Risiko missed connection",
     recommendation: safe
-      ? "Pertahankan jadwal feeder saat ini."
-      : "Pertimbangkan delay feeder/train atau dispatch armada tambahan."
+      ? "Pertahankan jadwal feeder saat ini dan tampilkan countdown normal ke penumpang."
+      : "Tunda departure train/feeders yang relevan atau dispatch armada tambahan untuk menjaga transfer window."
   };
 }

@@ -1,7 +1,7 @@
 import DashboardShell from "@/components/dashboard-shell";
-import { getDashboardState } from "@/lib/mock-data";
+import { createInitialDashboardState } from "@/lib/mock-data";
 
-export default async function HomePage() {
-  const data = await getDashboardState();
-  return <DashboardShell data={data} />;
+export default function HomePage() {
+  const initialData = createInitialDashboardState();
+  return <DashboardShell initialData={initialData} />;
 }

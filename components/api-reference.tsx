@@ -1,56 +1,39 @@
-type ApiReferenceProps = {
-  examples: {
-    densityCurrent: unknown;
-    densityHourly: unknown;
-    eta: unknown;
-    intermodalRequest: unknown;
-  };
-};
+import type { DashboardState } from "@/lib/types";
 
-export default function ApiReference({ examples }: ApiReferenceProps) {
+export default function ApiReference({ api }: { api: DashboardState["apiExamples"] }) {
   return (
-    <section className="panel-stack">
-      <div className="card panel-header-card">
+    <div className="card api-card">
+      <div className="panel-head" style={{ marginBottom: 0 }}>
         <div>
-          <p className="eyebrow">Developer handoff</p>
+          <p className="kicker"><span className="dot" /> Developer handoff</p>
           <h2>API payload examples</h2>
-          <p className="panel-subtitle">Tinggal sambungkan ke backend Python/FastAPI atau service model</p>
+          <p className="panel-meta">Siap diganti ke backend Python, YOLO, GTFS, traffic API, dan GPS nyata.</p>
         </div>
+        <span className="chip">Mock routes ready</span>
       </div>
 
-      <div className="api-grid">
+      <div className="api-grid" style={{ marginTop: 16 }}>
         <div className="card api-card">
-          <h4>GET /api/density/current</h4>
-          <p className="kv-sub">Output object detection saat ini</p>
-          <code>{JSON.stringify(examples.densityCurrent, null, 2)}</code>
+          <h3 className="section-title">GET /api/density/current</h3>
+          <p className="kv-sub">Output current object detection</p>
+          <code>{JSON.stringify(api.densityCurrent, null, 2)}</code>
         </div>
-
         <div className="card api-card">
-          <h4>GET /api/density/hourly</h4>
-          <p className="kv-sub">Agregasi hourly untuk prediksi feeder</p>
-          <code>{JSON.stringify(examples.densityHourly, null, 2)}</code>
+          <h3 className="section-title">GET /api/eta</h3>
+          <p className="kv-sub">ETA feeder + train</p>
+          <code>{JSON.stringify(api.eta, null, 2)}</code>
         </div>
-
         <div className="card api-card">
-          <h4>GET /api/eta?routeId=feeder-1a</h4>
-          <p className="kv-sub">ETA traffic-aware untuk feeder / train</p>
-          <code>{JSON.stringify(examples.eta, null, 2)}</code>
+          <h3 className="section-title">GET /api/gps/current</h3>
+          <p className="kv-sub">Snapshot GPS yang sama dengan peta</p>
+          <code>{JSON.stringify(api.gpsCurrent, null, 2)}</code>
         </div>
-
         <div className="card api-card">
-          <h4>POST /api/intermodal/evaluate</h4>
-          <p className="kv-sub">Body request untuk evaluasi transfer window</p>
-          <code>{JSON.stringify(examples.intermodalRequest, null, 2)}</code>
+          <h3 className="section-title">GET /api/gps/stream</h3>
+          <p className="kv-sub">Server-Sent Events untuk pergerakan armada</p>
+          <code>{JSON.stringify(api.gpsStreamExample, null, 2)}</code>
         </div>
       </div>
-
-      <div className="card">
-        <h3>Tips integrasi</h3>
-        <p className="tip">
-          Ganti sumber data di route handler atau langsung di <strong>lib/mock-data.ts</strong> ketika backend YOLO, traffic API,
-          atau GTFS-RT sudah tersedia.
-        </p>
-      </div>
-    </section>
+    </div>
   );
 }

@@ -1,70 +1,57 @@
 import HourlyBars from "./hourly-bars";
 import MetricCard from "./metric-card";
+import type { DashboardState } from "@/lib/types";
 
-type FeederPanelProps = {
-  selectedHour: string;
-  density: {
-    currentPassengers: number;
-    normalCount: number;
-    elderlyCount: number;
-    crowdingLabel: string;
-    standingElderly: number;
-    hourly: Array<{ hour: string; normalCount: number; elderlyCount: number }>;
-  };
-  vehicles: {
-    totalActiveFeeder: number;
-    recommendedFeeder: number;
-    priorityBus: number;
-  };
-};
-
-export default function FeederPanel({ selectedHour, density, vehicles }: FeederPanelProps) {
+export default function FeederPanel({ data }: { data: DashboardState }) {
   return (
     <section className="panel-stack">
-      <div className="card panel-header-card">
-        <div>
-          <p className="eyebrow">A. Predict jumlah feeder/bus</p>
-          <h2>Density hourly (object detection)</h2>
-          <p className="panel-subtitle">Slot aktif: {selectedHour} • Normal + Lansia</p>
+      <div className="card panel-card">
+        <div className="panel-head">
+          <div>
+            <p className="kicker"><span className="dot" /> A. Predict jumlah feeder/bus</p>
+            <h2>Density hourly dari object detection</h2>
+            <p className="panel-meta">Slot aktif: {data.filters.day} • {data.filters.hour} • normal + lansia</p>
+          </div>
+          <span className={`status-pill status-${data.density.crowdingLabel.toLowerCase()}`}>{data.density.crowdingLabel}</span>
         </div>
-        <span className={`status-pill status-${density.crowdingLabel.toLowerCase()}`}>
-          {density.crowdingLabel}
-        </span>
-      </div>
 
-      <div className="metrics-grid two-cols">
-        <MetricCard title="Normal" value={density.normalCount} hint="Objek terdeteksi" />
-        <MetricCard title="Lansia" value={density.elderlyCount} hint="Priority class" tone="warning" />
-        <MetricCard
-          title="Recommended Feeder"
-          value={vehicles.recommendedFeeder}
-          hint={`Feeder aktif saat ini ${vehicles.totalActiveFeeder}`}
-          tone="success"
-        />
-        <MetricCard
-          title="Priority Bus"
-          value={vehicles.priorityBus}
-          hint={`${density.standingElderly} lansia berdiri`}
-          tone={density.standingElderly >= 3 ? "danger" : "default"}
-        />
+        <div className="two-col-grid">
+          <MetricCard title="Normal" value={data.density.normalCount} hint="Terdeteksi dari feed object detection" />
+          <MetricCard title="Lansia" value={data.density.elderlyCount} hint="Priority class aktif" tone="warning" />
+          <MetricCard title="Recommended Feeder" value={data.vehicles.recommendedFeeder} hint={`Aktif saat ini ${data.vehicles.totalActiveFeeder}`} tone="success" badge="AI recommendation" />
+          <MetricCard title="Priority Bus" value={data.vehicles.priorityBus} hint={`${data.density.standingElderly} lansia berdiri`} tone={data.density.standingElderly >= 3 ? "danger" : "default"} />
+        </div>
       </div>
 
       <div className="card chart-card">
         <div className="chart-head">
           <div>
-            <h3>Hourly density source</h3>
-            <p>Bar biru = total normal, bar hijau = lansia</p>
+            <h3 className="section-title">Hourly density source</h3>
+            <p className="subtle">Bar biru = total normal, bar hijau = total lansia pada jam tersebut.</p>
           </div>
+          <span className="chip">Selected {data.filters.hour}</span>
         </div>
-        <HourlyBars data={density.hourly} />
+        <HourlyBars data={data.density.hourly} activeHour={data.filters.hour} />
       </div>
 
-      <div className="card recommendation-card">
-        <h3>Dispatch recommendation</h3>
-        <p>
-          Prediksi slot <strong>{selectedHour}</strong> merekomendasikan <strong>{vehicles.recommendedFeeder} feeder</strong>
-          {vehicles.priorityBus > 0 ? ` dengan ${vehicles.priorityBus} bus prioritas` : " tanpa bus prioritas tambahan"}.
-        </p>
+      <div className="card list-card">
+        <h3 className="section-title">Dispatch recommendation</h3>
+        <ul className="alert-list">
+          <li className="alert-item">
+            <div className="legend-dot" style={{ background: '#35c7ff', boxShadow: 'none' }} />
+            <div>
+              <strong>Deploy {data.vehicles.recommendedFeeder} feeder pada slot {data.filters.hour}</strong>
+              <span>{data.dispatch.explanation}</span>
+            </div>
+          </li>
+          <li className="alert-item">
+            <div className="legend-dot" style={{ background: '#b495ff', boxShadow: 'none' }} />
+            <div>
+              <strong>Priority handling</strong>
+              <span>{data.dispatch.priorityMessage}</span>
+            </div>
+          </li>
+        </ul>
       </div>
     </section>
   );

@@ -1,77 +1,49 @@
 import MetricCard from "./metric-card";
+import type { DashboardState } from "@/lib/types";
 
-type EtaPanelProps = {
-  currentTimeLabel: string;
-  eta: {
-    bus: { adjustedMinutes: number; deltaMinutes: number; trafficState: string };
-    train: { adjustedMinutes: number; deltaMinutes: number; trafficState: string };
-    transfer: {
-      safe: boolean;
-      status: string;
-      recommendation: string;
-      trainDepartureInMinutes: number;
-      lastToleratedEta: number;
-      feederEtaMinutes: number;
-    };
-  };
-};
-
-export default function EtaPanel({ currentTimeLabel, eta }: EtaPanelProps) {
+export default function EtaPanel({ data }: { data: DashboardState }) {
   return (
     <section className="panel-stack">
-      <div className="card panel-header-card">
-        <div>
-          <p className="eyebrow">B. Predict ETA based on traffic</p>
-          <h2>Traffic-aware ETA</h2>
-          <p className="panel-subtitle">Window operasional: {currentTimeLabel}</p>
+      <div className="card panel-card">
+        <div className="panel-head">
+          <div>
+            <p className="kicker"><span className="dot" /> B. Predict ETA berdasarkan traffic</p>
+            <h2>Traffic-aware ETA & intermodal window</h2>
+            <p className="panel-meta">Window operasional: {data.currentTimeLabel} • hari {data.filters.day}</p>
+          </div>
+          <span className={`status-pill ${data.eta.transfer.safe ? 'status-aman' : 'status-danger'}`}>{data.eta.transfer.status}</span>
         </div>
-        <span className={`status-pill ${eta.transfer.safe ? "status-aman" : "status-overload"}`}>
-          {eta.transfer.status}
-        </span>
+
+        <div className="two-col-grid">
+          <MetricCard title="ETA Feeder" value={`${data.eta.bus.adjustedMinutes} min`} hint={`Traffic ${data.eta.bus.trafficState}, +${data.eta.bus.deltaMinutes} min`} tone={data.eta.bus.deltaMinutes >= 6 ? 'danger' : 'warning'} />
+          <MetricCard title="ETA Train" value={`${data.eta.train.adjustedMinutes} min`} hint={`Traffic ${data.eta.train.trafficState}, +${data.eta.train.deltaMinutes} min`} />
+          <MetricCard title="Train departs in" value={`${data.eta.transfer.trainDepartureInMinutes} min`} hint="Passenger countdown" tone="success" />
+          <MetricCard title="Last tolerated ETA" value={`${data.eta.transfer.lastToleratedEta} min`} hint="Train departure - transfer buffer" tone="warning" />
+        </div>
       </div>
 
-      <div className="metrics-grid two-cols">
-        <MetricCard
-          title="ETA Feeder"
-          value={`${eta.bus.adjustedMinutes} min`}
-          hint={`Traffic ${eta.bus.trafficState}, +${eta.bus.deltaMinutes} min`}
-          tone={eta.bus.deltaMinutes >= 6 ? "danger" : "warning"}
-        />
-        <MetricCard
-          title="ETA Train"
-          value={`${eta.train.adjustedMinutes} min`}
-          hint={`Traffic ${eta.train.trafficState}, +${eta.train.deltaMinutes} min`}
-          tone="default"
-        />
-        <MetricCard
-          title="Train departs in"
-          value={`${eta.transfer.trainDepartureInMinutes} min`}
-          hint="Countdown penumpang"
-          tone="success"
-        />
-        <MetricCard
-          title="Last tolerated feeder ETA"
-          value={`${eta.transfer.lastToleratedEta} min`}
-          hint="Train departure - transfer buffer"
-          tone="warning"
-        />
+      <div className="card rule-card">
+        <h3 className="section-title">Intermodal rule engine</h3>
+        <div className="rule-row"><span>Feeder ETA</span><strong>{data.eta.transfer.feederEtaMinutes} min</strong></div>
+        <div className="rule-row"><span>Last tolerated ETA</span><strong>{data.eta.transfer.lastToleratedEta} min</strong></div>
+        <div className="rule-row"><span>Transfer buffer</span><strong>{data.eta.transfer.transferBufferMinutes} min</strong></div>
+        <div className="rule-row"><span>Status</span><strong>{data.eta.transfer.status}</strong></div>
+        <p className="rule-note">{data.eta.transfer.recommendation}</p>
       </div>
 
-      <div className="card simulation-card">
-        <h3>Intermodal rule engine</h3>
-        <div className="rule-row">
-          <span>Feeder ETA</span>
-          <strong>{eta.transfer.feederEtaMinutes} min</strong>
-        </div>
-        <div className="rule-row">
-          <span>Last tolerated ETA</span>
-          <strong>{eta.transfer.lastToleratedEta} min</strong>
-        </div>
-        <div className="rule-row total-row">
-          <span>Status</span>
-          <strong>{eta.transfer.status}</strong>
-        </div>
-        <p className="rule-note">{eta.transfer.recommendation}</p>
+      <div className="card list-card">
+        <h3 className="section-title">Live alerts</h3>
+        <ul className="alert-list">
+          {data.alerts.map((alert) => (
+            <li key={alert.title} className="alert-item">
+              <div className="legend-dot" style={{ background: alert.levelColor, boxShadow: 'none' }} />
+              <div>
+                <strong>{alert.title}</strong>
+                <span>{alert.description}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
