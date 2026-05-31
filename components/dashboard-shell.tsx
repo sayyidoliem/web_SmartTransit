@@ -23,6 +23,37 @@ export default function DashboardShell({
   const propagatedDelayMinutes =
     data.corridorUnits?.[0]?.propagatedDelayMinutes ?? 0;
 
+  const getUnitMode = (
+    vehicle: DashboardState["gpsSnapshot"]["vehicles"][number],
+  ) => {
+    const source = `${vehicle.label} ${vehicle.routeId}`.toLowerCase();
+
+    if (source.includes("mrt")) return "MRT";
+    if (source.includes("lrt")) return "LRT";
+
+    if (
+      source.includes("mikro") ||
+      source.includes("jak") ||
+      source.includes("angkot")
+    ) {
+      return "Mikrotrans";
+    }
+
+    return "Bus";
+  };
+
+  const getConnectedRailMode = () => {
+    const source = data.routeName.toLowerCase();
+
+    if (source.includes("mrt")) return "MRT";
+    if (source.includes("lrt")) return "LRT";
+
+    return "Intermodal";
+  };
+
+  const getCorridorUnitByVehicleId = (vehicleId: string) =>
+    data.corridorUnits.find((unit) => unit.id === vehicleId);
+
   return (
     <main className="page-shell">
       <div className="shell">
@@ -134,6 +165,125 @@ export default function DashboardShell({
                 <p className="kpi-value">{data.gpsSnapshot.vehicles.length}</p>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="unit-list-panel">
+          <div className="unit-list-head">
+            <div>
+              <p className="kicker">
+                <span className="dot" /> Operational units
+              </p>
+
+              <h2>Unit operasional terhubung</h2>
+
+              <p className="unit-list-subtitle">
+                Daftar unit seperti bus, mikrotrans, LRT, atau MRT yang
+                mengikuti koridor, jam, crowding, dan priority filter aktif.
+              </p>
+            </div>
+
+            <span className="badge">
+              {data.gpsSnapshot.vehicles.length} unit aktif
+            </span>
+          </div>
+
+          <div className="unit-filter-context">
+            <span className="unit-chip">{data.filters.corridorId}</span>
+            <span className="unit-chip">{data.filters.date}</span>
+            <span className="unit-chip">{data.filters.hour}</span>
+            <span className="unit-chip">{data.filters.crowdingLabel}</span>
+            <span className="unit-chip">{data.filters.priorityLabel}</span>
+            <span className="unit-chip">
+              Connected to {getConnectedRailMode()}
+            </span>
+          </div>
+
+          <div className="unit-vertical-list">
+            {data.gpsSnapshot.vehicles.length > 0 ? (
+              data.gpsSnapshot.vehicles.map((vehicle) => {
+                const unitMode = getUnitMode(vehicle);
+                const corridorUnit = getCorridorUnitByVehicleId(vehicle.id);
+                const delayMinutes = corridorUnit?.propagatedDelayMinutes ?? 0;
+                const baseEtaMinutes = corridorUnit?.baseEtaMinutes;
+
+                return (
+                  <article className="unit-card" key={vehicle.id}>
+                    <div className="unit-card-main">
+                      <div className="unit-icon">{unitMode}</div>
+
+                      <div>
+                        <p className="unit-name">{vehicle.label}</p>
+
+                        <p className="unit-meta">
+                          {vehicle.routeId} · {data.currentTimeLabel}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="unit-card-detail">
+                      <span className="unit-chip">
+                        GPS ETA {vehicle.nextEta}
+                      </span>
+
+                      {typeof baseEtaMinutes === "number" ? (
+                        <span className="unit-chip">
+                          Operational ETA {baseEtaMinutes} min
+                        </span>
+                      ) : null}
+
+                      <span
+                        className={
+                          vehicle.crowding === "Padat" ||
+                          vehicle.crowding === "Overload"
+                            ? "unit-chip danger"
+                            : vehicle.crowding === "Ramai"
+                              ? "unit-chip warning"
+                              : "unit-chip success"
+                        }
+                      >
+                        {vehicle.crowding}
+                      </span>
+
+                      <span
+                        className={
+                          vehicle.priorityAssigned
+                            ? "unit-chip priority"
+                            : "unit-chip"
+                        }
+                      >
+                        {vehicle.priorityAssigned
+                          ? "Priority assigned"
+                          : "Non-priority"}
+                      </span>
+
+                      <span
+                        className={
+                          delayMinutes > 0
+                            ? "unit-chip danger"
+                            : "unit-chip success"
+                        }
+                      >
+                        Delay {delayMinutes} min
+                      </span>
+
+                      <span className="unit-chip">
+                        Heading {Math.round(vehicle.heading)}°
+                      </span>
+
+                      <span className="unit-chip">
+                        Connect {getConnectedRailMode()}
+                      </span>
+                    </div>
+                  </article>
+                );
+              })
+            ) : (
+              <div className="empty-unit-card">
+                Tidak ada unit yang terlihat untuk kombinasi koridor, crowding,
+                dan priority filter saat ini.
+              </div>
+            )}
           </div>
         </section>
 
