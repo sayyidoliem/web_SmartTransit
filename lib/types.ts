@@ -126,3 +126,19 @@ export type DashboardState = {
     gpsStreamExample: unknown;
   };
 };
+
+export type BusType = "big" | "small";
+
+export type AllocationPredictionRow = {
+  corridorID: string;
+  hour: number;
+  alokasi_hari_ini: number;
+  overload_prob: number;
+  overload_pred: number;
+};
+
+export type AllocationPredictionResponse = {
+  bus_type: BusType;
+  total_rows: number;
+  data: AllocationPredictionRow[];
+};
