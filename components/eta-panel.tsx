@@ -3,7 +3,7 @@ import MetricCard from "./metric-card";
 export default function EtaPanel({ data }: { data: DashboardState }) {
   return (
     <section className="panel-stack">
-      <div className="card panel-card">
+      {/* <div className="card panel-card">
         <div className="panel-head">
           <div>
             <p className="kicker">
@@ -80,7 +80,7 @@ export default function EtaPanel({ data }: { data: DashboardState }) {
             </li>
           ))}
         </ul>
-      </div>
+      </div> */}
     </section>
   );
 }

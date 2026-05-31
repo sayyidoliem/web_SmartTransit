@@ -88,7 +88,7 @@ export default function DashboardShell({
             <FeederPanel data={data} />
           </div>
           <div className="right-stack">
-            <EtaPanel data={data} />
+            {/* <EtaPanel data={data} />
             <div className="card list-card">
               <div className="panel-head">
                 <div>
@@ -115,7 +115,7 @@ export default function DashboardShell({
                   </Link>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
         </section>
         <p className="footer-note">

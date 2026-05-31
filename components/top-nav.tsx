@@ -5,7 +5,7 @@ import { useState } from "react";
 const links = [
   { href: "/", label: "Dashboard" },
   { href: "/monitoring", label: "Monitoring" },
-  { href: "/corridor/feeder-1a", label: "Corridor Detail" },
+  // { href: "/corridor/feeder-1a", label: "Corridor Detail" },
   { href: "/developer", label: "Developer" },
 ];
 export default function TopNav() {

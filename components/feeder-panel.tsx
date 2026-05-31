@@ -4,7 +4,7 @@ import HourlyBars from "./hourly-bars";
 export default function FeederPanel({ data }: { data: DashboardState }) {
   return (
     <section className="panel-stack">
-      <div className="card panel-card">
+      {/* <div className="card panel-card">
         <div className="panel-head">
           <div>
             <p className="kicker">
@@ -58,7 +58,7 @@ export default function FeederPanel({ data }: { data: DashboardState }) {
           <span className="chip">Selected {data.filters.hour}</span>
         </div>
         <HourlyBars data={data.density.hourly} activeHour={data.filters.hour} />
-      </div>
+      </div> */}
     </section>
   );
 }
