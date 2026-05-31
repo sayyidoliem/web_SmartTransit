@@ -336,6 +336,7 @@ function trafficState(day: string, hour: string) {
 }
 function defaultFilters(): DashboardFilters {
   return {
+    corridorId: "feeder-1a",
     date: TODAY_DATE,
     crowding: "all",
     priority: "all",
@@ -433,6 +434,7 @@ export function getCorridorUnits(
       priorityAssigned: v.priorityAssigned,
       baseEtaMinutes:
         4 + index * 2 + Math.max(0, HOURS.indexOf(filters.hour) - 5),
+      propagatedDelayMinutes: 0,
       progressBoost: index,
     }));
 }
@@ -488,6 +490,9 @@ export function buildDashboardState(
       maxDate: TODAY_DATE,
       days: DAYS,
       hours: HOURS,
+
+      corridors: [{ value: "feeder-1a", label: "Feeder 1A — Dukuh Atas" }],
+
       crowding: [
         { value: "all", label: "Semua" },
         { value: "normal", label: "Normal" },
@@ -573,5 +578,8 @@ export function buildDashboardState(
         samplePayload: gpsSnapshot,
       },
     },
+    estimateMode: true,
+    estimateNote: "Data prediksi real-time dari AI model",
+    corridorUnits: getCorridorUnits(merged.corridorId, merged),
   };
 }
